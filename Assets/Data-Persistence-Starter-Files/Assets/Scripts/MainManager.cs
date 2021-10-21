@@ -3,22 +3,36 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.IO;
 
 public class MainManager : MonoBehaviour
 {
+    public static MainManager Instance;
+
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
 
+    //TEXT OBJECTS
     public Text ScoreText;
+    public Text HighScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
-    private int m_Points;
+    
+    //SCORE KEEPING
+    [SerializeField] int m_Points;
+    [SerializeField] int highScore;
+
+    //PLAYER NAME INPUT WHEN ACHIEVING HIGHSCORE
+    public string playerName;
     
     private bool m_GameOver = false;
 
-    
+    private void Awake()
+    {
+        UpdateHighScoreText();
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -34,6 +48,7 @@ public class MainManager : MonoBehaviour
                 var brick = Instantiate(BrickPrefab, position, Quaternion.identity);
                 brick.PointValue = pointCountArray[i];
                 brick.onDestroyed.AddListener(AddPoint);
+                brick.onDestroyed.AddListener(UpdateScoreText);
             }
         }
     }
@@ -62,10 +77,34 @@ public class MainManager : MonoBehaviour
         }
     }
 
-    void AddPoint(int point)
+    //SCORE KEEPING
+    public void AddPoint(int point)
     {
         m_Points += point;
-        ScoreText.text = $"Score : {m_Points}";
+    }
+
+    public void UpdateScoreText(int m_points)
+    {
+        ScoreText.text = $"Score: {m_Points}";
+    }
+
+    [System.Serializable]
+    class PlayerData
+    {
+        public int m_Points;
+        public int highScore;
+        //public string playerName;
+    }
+
+    //SAVE SCORE
+    public void SaveScore()
+    {
+        PlayerData data = new PlayerData();
+        data.m_Points = m_Points;
+
+        string json = JsonUtility.ToJson(data);
+
+        File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
     }
 
     public void GameOver()
