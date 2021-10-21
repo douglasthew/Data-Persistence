@@ -7,7 +7,7 @@ using System.IO;
 
 public class MainManager : MonoBehaviour
 {
-    public static MainManager Instance;
+    
 
     public Brick BrickPrefab;
     public int LineCount = 6;
@@ -21,7 +21,7 @@ public class MainManager : MonoBehaviour
     private bool m_Started = false;
     
     //SCORE KEEPING
-    [SerializeField] int m_Points;
+    [SerializeField] int Points;
     [SerializeField] int highScore;
 
     //PLAYER NAME INPUT WHEN ACHIEVING HIGHSCORE
@@ -29,9 +29,18 @@ public class MainManager : MonoBehaviour
     
     private bool m_GameOver = false;
 
+    public static MainManager Instance;
     private void Awake()
     {
-        UpdateHighScoreText();
+        if(Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
     }
     // Start is called before the first frame update
     void Start()
@@ -51,6 +60,8 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(UpdateScoreText);
             }
         }
+
+        LoadScore();
     }
 
     private void Update()
@@ -70,7 +81,7 @@ public class MainManager : MonoBehaviour
         }
         else if (m_GameOver)
         {
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.R))
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
@@ -80,18 +91,18 @@ public class MainManager : MonoBehaviour
     //SCORE KEEPING
     public void AddPoint(int point)
     {
-        m_Points += point;
+        Points += point;
     }
 
-    public void UpdateScoreText(int m_points)
+    public void UpdateScoreText(int Points)
     {
-        ScoreText.text = $"Score: {m_Points}";
+        ScoreText.text = $"Score: {Points}";
     }
 
     [System.Serializable]
     class PlayerData
     {
-        public int m_Points;
+        public int Points;
         public int highScore;
         //public string playerName;
     }
@@ -100,15 +111,28 @@ public class MainManager : MonoBehaviour
     public void SaveScore()
     {
         PlayerData data = new PlayerData();
-        data.m_Points = m_Points;
+        data.Points = Points;
 
         string json = JsonUtility.ToJson(data);
 
         File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
     }
 
+    public void LoadScore()
+    {
+        string path = Application.persistentDataPath + "/savefile.json";
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            PlayerData data = JsonUtility.FromJson<PlayerData>(json);
+
+            highScore = data.Points;
+            HighScoreText.text = $"Best Score: {highScore}";
+        }
+    }
     public void GameOver()
     {
+
         m_GameOver = true;
         GameOverText.SetActive(true);
     }

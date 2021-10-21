@@ -504,6 +504,7 @@ MonoBehaviour:
   ScoreText: {fileID: 188020406}
   HighScoreText: {fileID: 2078529056}
   GameOverText: {fileID: 474497238}
+  Points: 0
   highScore: 0
   playerName: 
 --- !u!1 &455529321
@@ -644,7 +645,7 @@ MonoBehaviour:
     m_LineSpacing: 1
   m_Text: 'GAME OVER
 
-    Press Space to Restart'
+    Press "R" to Restart'
 --- !u!222 &474497241
 CanvasRenderer:
   m_ObjectHideFlags: 0
