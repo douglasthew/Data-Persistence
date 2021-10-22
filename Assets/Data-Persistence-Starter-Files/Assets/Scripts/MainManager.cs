@@ -51,7 +51,6 @@ public class MainManager : MonoBehaviour
                 var brick = Instantiate(BrickPrefab, position, Quaternion.identity);
                 brick.PointValue = pointCountArray[i];
                 brick.onDestroyed.AddListener(AddPoint);
-                brick.onDestroyed.AddListener(UpdateScoreText);
             }
         }
 
@@ -86,11 +85,12 @@ public class MainManager : MonoBehaviour
     public void AddPoint(int point)
     {
         Points += point;
+        ScoreText.text = $"Score: {Points}";
     }
 
-    public void UpdateScoreText(int Points)
+    public void UpdateHighScoreText()
     {
-        ScoreText.text = $"Score: {Points}";
+        HighScoreText.text = $"Best Score: {highScore}";
     }
 
     [System.Serializable]
@@ -121,12 +121,16 @@ public class MainManager : MonoBehaviour
             PlayerData data = JsonUtility.FromJson<PlayerData>(json);
 
             highScore = data.Points;
-            HighScoreText.text = $"Best Score: {highScore}";
+            if(data.Points < highScore)
+            {
+                SaveScore();
+                UpdateHighScoreText();
+            }
         }
     }
     public void GameOver()
     {
-
+        LoadScore();
         m_GameOver = true;
         GameOverText.SetActive(true);
     }
