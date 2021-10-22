@@ -32,12 +32,6 @@ public class MainManager : MonoBehaviour
     public static MainManager Instance;
     private void Awake()
     {
-        if(Instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
@@ -100,7 +94,7 @@ public class MainManager : MonoBehaviour
     }
 
     [System.Serializable]
-    class PlayerData
+    public class PlayerData
     {
         public int Points;
         public int highScore;
